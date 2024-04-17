@@ -1,6 +1,7 @@
 package dev.khaliuk.ccdns;
 
 import dev.khaliuk.ccdns.config.Logger;
+import dev.khaliuk.ccdns.dto.Answer;
 import dev.khaliuk.ccdns.dto.DnsMessage;
 import dev.khaliuk.ccdns.dto.Header;
 import dev.khaliuk.ccdns.dto.Question;
@@ -27,10 +28,18 @@ public class Main {
                         .packetIdentifier(1234)
                         .queryResponse(true)
                         .questionCount(1)
+                        .answerCount(1)
                         .build())
                     .question(Question.builder()
                         .labels(List.of("codecrafters", "io"))
                         .type(Type.A)
+                        .build())
+                    .answer(Answer.builder()
+                        .labels(List.of("codecrafters", "io"))
+                        .type(Type.A)
+                        .ttl(60)
+                        .length(4)
+                        .address("8.8.8.8")
                         .build())
                     .build();
 

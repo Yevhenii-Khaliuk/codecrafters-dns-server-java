@@ -9,9 +9,9 @@ import java.util.List;
 public class Question {
     private static final Logger LOGGER = new Logger(Question.class);
 
-    private final List<String> labels;
-    private final int type;
-    private final int classCode;
+    private final List<String> labels; // 1 byte length + label for each of the labels
+    private final int type; // 2 bytes
+    private final int classCode; // 2 bytes, most of the time it's '1', so builder has it as default
 
     public Question(List<String> labels, int type, int classCode) {
         this.labels = labels;

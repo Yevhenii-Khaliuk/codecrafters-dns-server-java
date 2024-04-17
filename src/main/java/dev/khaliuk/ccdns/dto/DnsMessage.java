@@ -7,10 +7,12 @@ public class DnsMessage {
 
     private final Header header;
     private final Question question; // TODO: support a list of questions
+    private final Answer answer; // TODO: support a list of answers
 
-    public DnsMessage(Header header, Question question) {
+    public DnsMessage(Header header, Question question, Answer answer) {
         this.header = header;
         this.question = question;
+        this.answer = answer;
     }
 
     public byte[] serialize() {
@@ -20,6 +22,8 @@ public class DnsMessage {
         System.arraycopy(headerBuf, 0, buf, 0, headerBuf.length);
         byte[] questionBuf = question.serialize();
         System.arraycopy(questionBuf, 0, buf, headerBuf.length, questionBuf.length);
+        byte[] answerBuf = answer.serialize();
+        System.arraycopy(answerBuf, 0, buf, headerBuf.length + questionBuf.length, answerBuf.length);
 
         return buf;
     }
@@ -31,6 +35,7 @@ public class DnsMessage {
     public static class DnsMessageBuilder {
         private Header header;
         private Question question;
+        private Answer answer;
 
         public DnsMessageBuilder header(Header header) {
             this.header = header;
@@ -42,8 +47,13 @@ public class DnsMessage {
             return this;
         }
 
+        public DnsMessageBuilder answer(Answer answer) {
+            this.answer = answer;
+            return this;
+        }
+
         public DnsMessage build() {
-            return new DnsMessage(this.header, this.question);
+            return new DnsMessage(this.header, this.question, this.answer);
         }
     }
 }
