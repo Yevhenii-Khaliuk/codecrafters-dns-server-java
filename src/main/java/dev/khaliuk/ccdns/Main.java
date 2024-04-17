@@ -23,29 +23,11 @@ public class Main {
                 serverSocket.receive(packet);
                 LOGGER.log("Received data");
 
-                DnsMessage dnsMessage = DnsMessage.builder()
-                    .header(Header.builder()
-                        .packetIdentifier(1234)
-                        .queryResponse(true)
-                        .questionCount(1)
-                        .answerCount(1)
-                        .build())
-                    .question(Question.builder()
-                        .labels(List.of("codecrafters", "io"))
-                        .type(Type.A)
-                        .build())
-                    .answer(Answer.builder()
-                        .labels(List.of("codecrafters", "io"))
-                        .type(Type.A)
-                        .ttl(60)
-                        .length(4)
-                        .address("8.8.8.8")
-                        .build())
-                    .build();
+                Header requestHeader = parseRequest(buf);
 
-                final byte[] bufResponse = dnsMessage.serialize();
+                final byte[] response = createResponse(requestHeader);
                 final DatagramPacket packetResponse =
-                    new DatagramPacket(bufResponse, bufResponse.length, packet.getSocketAddress());
+                    new DatagramPacket(response, response.length, packet.getSocketAddress());
                 serverSocket.send(packetResponse);
             }
         } catch (IOException e) {
@@ -53,5 +35,48 @@ public class Main {
         }
     }
 
+    private static Header parseRequest(byte[] buffer) {
+        int packetIdentifier = 0;
+        packetIdentifier += ((buffer[0] & 0xFF) << 8);
+        packetIdentifier += (buffer[1] & 0xFF);
 
+        int operationCode = (buffer[2] & 0x78) >> 3;
+
+        boolean recursionDesired = (buffer[2] & 0x01) == 1;
+
+        int responseCode = operationCode == 0 ? 0 : 4;
+
+        return Header.builder()
+            .packetIdentifier(packetIdentifier)
+            .operationCode(operationCode)
+            .recursionDesired(recursionDesired)
+            .responseCode(responseCode)
+            .build();
+    }
+
+    private static byte[] createResponse(Header requestHeader) {
+        return DnsMessage.builder()
+            .header(Header.builder()
+                .packetIdentifier(requestHeader.getPacketIdentifier())
+                .queryResponse(true)
+                .operationCode(requestHeader.getOperationCode())
+                .recursionDesired(requestHeader.isRecursionDesired())
+                .responseCode(requestHeader.getResponseCode())
+                .questionCount(1)
+                .answerCount(1)
+                .build())
+            .question(Question.builder()
+                .labels(List.of("codecrafters", "io"))
+                .type(Type.A)
+                .build())
+            .answer(Answer.builder()
+                .labels(List.of("codecrafters", "io"))
+                .type(Type.A)
+                .ttl(60)
+                .length(4)
+                .address("8.8.8.8")
+                .build())
+            .build()
+            .serialize();
+    }
 }

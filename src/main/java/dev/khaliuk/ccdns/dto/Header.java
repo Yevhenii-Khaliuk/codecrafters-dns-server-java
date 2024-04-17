@@ -49,6 +49,58 @@ public class Header {
         this.additionalCount = additionalCount;
     }
 
+    public int getPacketIdentifier() {
+        return packetIdentifier;
+    }
+
+    public boolean isQueryResponse() {
+        return queryResponse;
+    }
+
+    public int getOperationCode() {
+        return operationCode;
+    }
+
+    public boolean isAuthoritativeAnswer() {
+        return authoritativeAnswer;
+    }
+
+    public boolean isTruncatedMessage() {
+        return truncatedMessage;
+    }
+
+    public boolean isRecursionDesired() {
+        return recursionDesired;
+    }
+
+    public boolean isRecursionAvailable() {
+        return recursionAvailable;
+    }
+
+    public int getReserved() {
+        return reserved;
+    }
+
+    public int getResponseCode() {
+        return responseCode;
+    }
+
+    public int getQuestionCount() {
+        return questionCount;
+    }
+
+    public int getAnswerCount() {
+        return answerCount;
+    }
+
+    public int getAuthorityCount() {
+        return authorityCount;
+    }
+
+    public int getAdditionalCount() {
+        return additionalCount;
+    }
+
     byte[] serialize() {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
