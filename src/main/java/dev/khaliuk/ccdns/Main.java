@@ -1,6 +1,8 @@
 package dev.khaliuk.ccdns;
 
 import dev.khaliuk.ccdns.config.Logger;
+import dev.khaliuk.ccdns.dto.DnsMessage;
+import dev.khaliuk.ccdns.dto.Header;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -17,7 +19,14 @@ public class Main {
                 serverSocket.receive(packet);
                 LOGGER.log("Received data");
 
-                final byte[] bufResponse = new byte[512];
+                DnsMessage dnsMessage = DnsMessage.builder()
+                    .header(Header.builder()
+                        .packetIdentifier(1234)
+                        .queryResponse(true)
+                        .build())
+                    .build();
+
+                final byte[] bufResponse = dnsMessage.serialize();
                 final DatagramPacket packetResponse =
                     new DatagramPacket(bufResponse, bufResponse.length, packet.getSocketAddress());
                 serverSocket.send(packetResponse);
@@ -26,4 +35,6 @@ public class Main {
             LOGGER.log("IOException: " + e.getMessage());
         }
     }
+
+
 }
