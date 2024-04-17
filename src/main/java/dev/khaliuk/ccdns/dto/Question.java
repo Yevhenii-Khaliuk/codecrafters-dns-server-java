@@ -19,6 +19,18 @@ public class Question {
         this.classCode = classCode;
     }
 
+    public List<String> getLabels() {
+        return labels;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public int getClassCode() {
+        return classCode;
+    }
+
     public byte[] serialize() {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 

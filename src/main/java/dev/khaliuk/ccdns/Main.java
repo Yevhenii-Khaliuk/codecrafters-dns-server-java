@@ -10,6 +10,7 @@ import dev.khaliuk.ccdns.dto.Type;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
@@ -23,9 +24,8 @@ public class Main {
                 serverSocket.receive(packet);
                 LOGGER.log("Received data");
 
-                Header requestHeader = parseRequest(buf);
-
-                final byte[] response = createResponse(requestHeader);
+                DnsMessage request = parseRequest(buf);
+                final byte[] response = createResponse(request);
                 final DatagramPacket packetResponse =
                     new DatagramPacket(response, response.length, packet.getSocketAddress());
                 serverSocket.send(packetResponse);
@@ -35,7 +35,14 @@ public class Main {
         }
     }
 
-    private static Header parseRequest(byte[] buffer) {
+    private static DnsMessage parseRequest(byte[] buffer) {
+        return DnsMessage.builder()
+            .header(parseHeader(buffer))
+            .question(parseQuestion(buffer))
+            .build();
+    }
+
+    private static Header parseHeader(byte[] buffer) {
         int packetIdentifier = 0;
         packetIdentifier += ((buffer[0] & 0xFF) << 8);
         packetIdentifier += (buffer[1] & 0xFF);
@@ -54,23 +61,41 @@ public class Main {
             .build();
     }
 
-    private static byte[] createResponse(Header requestHeader) {
+    private static Question parseQuestion(byte[] buffer) {
+        List<String> labels = new ArrayList<>();
+
+        int index = 12;
+        int length = buffer[index] & 0xFF;
+        while (length != 0) {
+            byte[] labelBytes = new byte[length];
+            System.arraycopy(buffer, index + 1, labelBytes, 0, length);
+            labels.add(new String(labelBytes));
+            index += length + 1;
+            length = buffer[index] & 0xFF;
+        }
+
+        return Question.builder()
+            .labels(labels)
+            .build();
+    }
+
+    private static byte[] createResponse(DnsMessage request) {
         return DnsMessage.builder()
             .header(Header.builder()
-                .packetIdentifier(requestHeader.getPacketIdentifier())
+                .packetIdentifier(request.getHeader().getPacketIdentifier())
                 .queryResponse(true)
-                .operationCode(requestHeader.getOperationCode())
-                .recursionDesired(requestHeader.isRecursionDesired())
-                .responseCode(requestHeader.getResponseCode())
+                .operationCode(request.getHeader().getOperationCode())
+                .recursionDesired(request.getHeader().isRecursionDesired())
+                .responseCode(request.getHeader().getResponseCode())
                 .questionCount(1)
                 .answerCount(1)
                 .build())
             .question(Question.builder()
-                .labels(List.of("codecrafters", "io"))
+                .labels(request.getQuestion().getLabels())
                 .type(Type.A)
                 .build())
             .answer(Answer.builder()
-                .labels(List.of("codecrafters", "io"))
+                .labels(request.getQuestion().getLabels())
                 .type(Type.A)
                 .ttl(60)
                 .length(4)

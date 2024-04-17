@@ -15,6 +15,18 @@ public class DnsMessage {
         this.answer = answer;
     }
 
+    public Header getHeader() {
+        return header;
+    }
+
+    public Question getQuestion() {
+        return question;
+    }
+
+    public Answer getAnswer() {
+        return answer;
+    }
+
     public byte[] serialize() {
         byte[] buf = new byte[512];
 
