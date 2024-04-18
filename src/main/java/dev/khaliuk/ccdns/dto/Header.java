@@ -4,102 +4,36 @@ import dev.khaliuk.ccdns.config.Logger;
 
 import java.io.ByteArrayOutputStream;
 
-public class Header {
+/**
+ * @param packetIdentifier    16 bits
+ * @param queryResponse       1 bit
+ * @param operationCode       4 bits
+ * @param authoritativeAnswer 1 bit
+ * @param truncatedMessage    1 bit
+ * @param recursionDesired    1 bit
+ * @param recursionAvailable  1 bit
+ * @param reserved            3 bits
+ * @param responseCode        4 bits
+ * @param questionCount       16 bits
+ * @param answerCount         16 bits
+ * @param authorityCount      16 bits
+ * @param additionalCount     16 bits
+ */
+public record Header(int packetIdentifier,
+                     boolean queryResponse,
+                     int operationCode,
+                     boolean authoritativeAnswer,
+                     boolean truncatedMessage,
+                     boolean recursionDesired,
+                     boolean recursionAvailable,
+                     int reserved,
+                     int responseCode,
+                     int questionCount,
+                     int answerCount,
+                     int authorityCount,
+                     int additionalCount) {
+
     private static final Logger LOGGER = new Logger(Header.class);
-
-    private final int packetIdentifier; // 16 bits
-    // 2 bytes
-    private final boolean queryResponse; // 1 bit
-    private final int operationCode; // 4 bits
-    private final boolean authoritativeAnswer; // 1 bit
-    private final boolean truncatedMessage; // 1 bit
-    private final boolean recursionDesired; // 1 bit
-    // 3 bytes
-    private final boolean recursionAvailable; // 1 bit
-    private final int reserved; // 3 bits
-    private final int responseCode; // 4 bits
-    // 4 bytes
-
-    private final int questionCount; // 16 bits
-    // 6 bytes
-    private final int answerCount; // 16 bits
-    // 8 bytes
-
-    private final int authorityCount; // 16 bits
-    // 10 bytes
-    private final int additionalCount; // 16 bits
-    // 12 bytes
-
-
-    public Header(int packetIdentifier, boolean queryResponse, int operationCode, boolean authoritativeAnswer,
-                  boolean truncatedMessage, boolean recursionDesired, boolean recursionAvailable, int reserved,
-                  int responseCode, int questionCount, int answerCount, int authorityCount, int additionalCount) {
-        this.packetIdentifier = packetIdentifier;
-        this.queryResponse = queryResponse;
-        this.operationCode = operationCode;
-        this.authoritativeAnswer = authoritativeAnswer;
-        this.truncatedMessage = truncatedMessage;
-        this.recursionDesired = recursionDesired;
-        this.recursionAvailable = recursionAvailable;
-        this.reserved = reserved;
-        this.responseCode = responseCode;
-        this.questionCount = questionCount;
-        this.answerCount = answerCount;
-        this.authorityCount = authorityCount;
-        this.additionalCount = additionalCount;
-    }
-
-    public int getPacketIdentifier() {
-        return packetIdentifier;
-    }
-
-    public boolean isQueryResponse() {
-        return queryResponse;
-    }
-
-    public int getOperationCode() {
-        return operationCode;
-    }
-
-    public boolean isAuthoritativeAnswer() {
-        return authoritativeAnswer;
-    }
-
-    public boolean isTruncatedMessage() {
-        return truncatedMessage;
-    }
-
-    public boolean isRecursionDesired() {
-        return recursionDesired;
-    }
-
-    public boolean isRecursionAvailable() {
-        return recursionAvailable;
-    }
-
-    public int getReserved() {
-        return reserved;
-    }
-
-    public int getResponseCode() {
-        return responseCode;
-    }
-
-    public int getQuestionCount() {
-        return questionCount;
-    }
-
-    public int getAnswerCount() {
-        return answerCount;
-    }
-
-    public int getAuthorityCount() {
-        return authorityCount;
-    }
-
-    public int getAdditionalCount() {
-        return additionalCount;
-    }
 
     byte[] serialize() {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();

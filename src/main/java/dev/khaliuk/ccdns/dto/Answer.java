@@ -8,25 +8,23 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
 
-public class Answer {
+/**
+ * @param labels    1 byte length + label for each of the labels
+ * @param type      2 bytes
+ * @param classCode 2 bytes
+ * @param ttl       4 bytes
+ * @param length    2 bytes
+ * @param address   4 bytes
+ */
+public record Answer(
+    List<String> labels,
+    int type,
+    int classCode,
+    int ttl,
+    int length,
+    InetAddress address) {
+
     private static final Logger LOGGER = new Logger(Answer.class);
-
-    private final List<String> labels; // 1 byte length + label for each of the labels
-    private final int type; // 2 bytes
-    private final int classCode; // 2 bytes
-    private final int ttl; // 4 bytes
-    private final int length; // 2 bytes
-    // TODO: support other types
-    private final InetAddress address; // 4 bytes
-
-    public Answer(List<String> labels, int type, int classCode, int ttl, int length, InetAddress address) {
-        this.labels = labels;
-        this.type = type;
-        this.classCode = classCode;
-        this.ttl = ttl;
-        this.length = length;
-        this.address = address;
-    }
 
     public byte[] serialize() {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();

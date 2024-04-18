@@ -2,42 +2,47 @@ package dev.khaliuk.ccdns.dto;
 
 import dev.khaliuk.ccdns.config.Logger;
 
-public class DnsMessage {
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.List;
+
+public record DnsMessage(
+    Header header,
+    List<Question> questions,
+    List<Answer> answers) {
+
     private static final Logger LOGGER = new Logger(DnsMessage.class);
 
-    private final Header header;
-    private final Question question; // TODO: support a list of questions
-    private final Answer answer; // TODO: support a list of answers
-
-    public DnsMessage(Header header, Question question, Answer answer) {
-        this.header = header;
-        this.question = question;
-        this.answer = answer;
-    }
-
-    public Header getHeader() {
-        return header;
-    }
-
-    public Question getQuestion() {
-        return question;
-    }
-
-    public Answer getAnswer() {
-        return answer;
-    }
-
     public byte[] serialize() {
-        byte[] buf = new byte[512];
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
         byte[] headerBuf = header.serialize();
-        System.arraycopy(headerBuf, 0, buf, 0, headerBuf.length);
-        byte[] questionBuf = question.serialize();
-        System.arraycopy(questionBuf, 0, buf, headerBuf.length, questionBuf.length);
-        byte[] answerBuf = answer.serialize();
-        System.arraycopy(answerBuf, 0, buf, headerBuf.length + questionBuf.length, answerBuf.length);
+        try {
+            buffer.write(headerBuf);
+        } catch (IOException e) {
+            LOGGER.log("Unexpected error: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+        questions.forEach(question -> {
+            byte[] questionBuf = question.serialize();
+            try {
+                buffer.write(questionBuf);
+            } catch (IOException e) {
+                LOGGER.log("Unexpected error: " + e.getMessage());
+                throw new RuntimeException(e);
+            }
+        });
+        answers.forEach(answer -> {
+            byte[] answerBuf = answer.serialize();
+            try {
+                buffer.write(answerBuf);
+            } catch (IOException e) {
+                LOGGER.log("Unexpected error: " + e.getMessage());
+                throw new RuntimeException(e);
+            }
+        });
 
-        return buf;
+        return buffer.toByteArray();
     }
 
     public static DnsMessageBuilder builder() {
@@ -46,26 +51,26 @@ public class DnsMessage {
 
     public static class DnsMessageBuilder {
         private Header header;
-        private Question question;
-        private Answer answer;
+        private List<Question> questions;
+        private List<Answer> answers;
 
         public DnsMessageBuilder header(Header header) {
             this.header = header;
             return this;
         }
 
-        public DnsMessageBuilder question(Question question) {
-            this.question = question;
+        public DnsMessageBuilder questions(List<Question> questions) {
+            this.questions = questions;
             return this;
         }
 
-        public DnsMessageBuilder answer(Answer answer) {
-            this.answer = answer;
+        public DnsMessageBuilder answers(List<Answer> answers) {
+            this.answers = answers;
             return this;
         }
 
         public DnsMessage build() {
-            return new DnsMessage(this.header, this.question, this.answer);
+            return new DnsMessage(this.header, this.questions, this.answers);
         }
     }
 }
