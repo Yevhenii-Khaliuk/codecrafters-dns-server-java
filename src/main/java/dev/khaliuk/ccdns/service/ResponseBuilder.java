@@ -13,21 +13,25 @@ public final class ResponseBuilder {
     }
 
     public static byte[] createResponse(DnsMessage request) {
+        List<Answer> answers = request.questions()
+            .stream()
+            .map(question -> Answer.builder()
+                .labels(question.labels())
+                .type(Type.A)
+                .ttl(60)
+                .length(4)
+                .address("8.8.8.8")
+                .build())
+            .toList();
+        return createResponse(request, answers);
+    }
+
+    public static byte[] createResponse(DnsMessage request, List<Answer> answers) {
         List<Question> questions = request.questions()
             .stream()
             .map(q -> Question.builder()
                 .labels(q.labels())
                 .type(Type.A)
-                .build())
-            .toList();
-        List<Answer> answers = request.questions()
-            .stream()
-            .map(q -> Answer.builder()
-                .labels(q.labels())
-                .type(Type.A)
-                .ttl(60)
-                .length(4)
-                .address("8.8.8.8")
                 .build())
             .toList();
 

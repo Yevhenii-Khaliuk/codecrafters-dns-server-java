@@ -67,6 +67,23 @@ public record Header(int packetIdentifier,
         return buffer.toByteArray();
     }
 
+    public HeaderBuilder toBuilder() {
+        return builder()
+            .packetIdentifier(packetIdentifier)
+            .queryResponse(queryResponse)
+            .operationCode(operationCode)
+            .authoritativeAnswer(authoritativeAnswer)
+            .truncatedMessage(truncatedMessage)
+            .recursionDesired(recursionDesired)
+            .recursionAvailable(recursionAvailable)
+            .reserved(reserved)
+            .responseCode(responseCode)
+            .questionCount(questionCount)
+            .answerCount(answerCount)
+            .authorityCount(authorityCount)
+            .additionalCount(additionalCount);
+    }
+
     public static HeaderBuilder builder() {
         return new HeaderBuilder();
     }

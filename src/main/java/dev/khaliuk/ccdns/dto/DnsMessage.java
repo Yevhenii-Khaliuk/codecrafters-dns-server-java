@@ -52,7 +52,7 @@ public record DnsMessage(
     public static class DnsMessageBuilder {
         private Header header;
         private List<Question> questions;
-        private List<Answer> answers;
+        private List<Answer> answers = List.of();
 
         public DnsMessageBuilder header(Header header) {
             this.header = header;
